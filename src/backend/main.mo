@@ -1,19 +1,24 @@
+//Importar módulos base
 import Principal "mo:base/Principal";
-import Debug "mo:base/Debug";
-import Result "mo:base/Result";
+//import Debug "mo:base/Debug";
+import Nat "mo:base/Nat";
+import Text "mo:base/Text";
+//import HashMap "mo:base/HashMap";
+//Importar módulos de Mops
+import Map "mo:map/Map"; //Librería map: Hacer hash map estables
+import { thash } "mo:map/Map";
+//Importar el módulo types (Del archivo types.mo)
+import Types "types";
 
 actor {
     stable var name: Text = "";
 
-    //type: Definir la estructura de un tipo de dato
-    type User = (Text, Nat);
-
-    //Arreglo de usuarios del tipo User
-
-    var users: [User] = [
-        ("Miguel", 17),
-        ("Adrián", 36)
-    ];
+    /*Hashmap de usuarios
+    //El primer HashMap es un módulo, el segundo es un type HashMap
+    //Los parámetros <Text, User> son igual a <Identificador del elemento, Tipo de dato del elemento>
+    var usersMap = HashMap.HashMap<Text, Types.User>(5, Text.equal, Text.hash);
+    */
+    var users = Map.new<Text, Types.User>();
 
     //Registrar nombre
     public shared func setName(newName: Text): async () {
@@ -30,13 +35,22 @@ actor {
         return message.caller;
     };
 
-    //Type personalizado para el result. Dos Result, el primero es el módulo Result, y el 2o un type dentro del módulo
-    //El tipo espera dos parámetros, uno para cuando todo está bien y otro cuando algo sale mal.
-    type GetUsersResult = Result.Result<[User], Text>;
+    public shared func addUser(data: Types.User): () {
+        Map.set(users, thash, Principal.toText(data.id), data);
+    };
+
+    public shared func deleteUser(id: Principal): () {
+        Map.delete(users, thash, Principal.toText(id));
+    };
+
+
+
+
 
     //Mi identificador de la página:
     //er2hr-ypru2-orkmg-h2u3q-x3ihs-3iqa6-7wuu7-7ngme-2l2ij-2ogts-wae
 
+/*
     //Validación para obtener sólo usuarios autenticados
     public shared query ({caller}) func getUsers(): async GetUsersResult {
         Debug.print("Caller: " # Principal.toText(caller));
@@ -52,4 +66,5 @@ actor {
         Debug.print("Usuario autenticado");
         return #ok(users);
     }
+*/
 }
